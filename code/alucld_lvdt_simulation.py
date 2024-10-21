@@ -1,6 +1,6 @@
 import sys
 sys.dont_write_bytecode = True
-from Helper import *
+from modules.Helper import *
 
 # Model: aluminum cylinder + magnetic core
 path = "../data/alucld/"
