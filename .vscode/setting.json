@@ -1,5 +1,6 @@
 {
     "python.analysis.extraPaths": [
-        "C:/Users/lpb/OneDrive/Datacenter/Workspace/LVDT/simulation/lvdt-corecoil/modules/"
+        "C:/Users/lpb/OneDrive/Datacenter/Workspace/LVDT/simulation/lvdt-corecoil/code/modules/",
+        "C:/Users/pengb/OneDrive/Datacenter/Workspace/LVDT/simulation/lvdt-corecoil/code/modules/"
     ]
 }

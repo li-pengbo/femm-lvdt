@@ -1,4 +1,4 @@
-name: env_lvdt
+name: lvdt
 channels:
   - conda-forge
   - defaults
