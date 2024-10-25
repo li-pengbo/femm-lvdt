@@ -4,6 +4,7 @@ import femm
 import h5py
 import numpy as np
 from datetime import datetime
+from modules import coreConfig, dataHandler, geometry
 sys.dont_write_bytecode = True
 
 def def_femm_problem(signal_frequency = 10000,unit = 'millimeters', problem_type = 'axi', precision = 1e-10):    
@@ -336,6 +337,65 @@ def vc_simulation(moving_parts_label, CC_config, vc_data, M_label, MC_label, OC_
     except KeyboardInterrupt:
         print("Simulation Interrupted")
 
+def run_lvdt_simulation(path, filename, simulation_freq, simulation_amplitude, core_params,  coil_params):
+    """
+    Run the LVDT simulation with specified parameters and save the results to a file.
+
+    Parameters:
+        path (str): Path to save the data file.
+        filename (str): Name of the data file.
+        simulation_freq (float): Simulation frequency in Hz.
+        simulation_amplitude (float): Amplitude for the outer coil circuit.
+        core_params (tuple): Tuple containing (outer_diameter, inner_diameter, Material) for the core geometry.
+        coil_params (dict): Dictionary containing parameters for CoreCoil, MiddleCoil, and OuterCoil.
+    """
+    # Define geometry for core and coils
+    Magnet_geo = geometry.def_core_geo(*core_params)
+    CoreCoil_geo = geometry.def_coil_geo(*coil_params['CoreCoil'])
+    MiddleCoil_geo = geometry.def_coil_geo(*coil_params['MiddleCoil'])
+    OuterCoil_geo = geometry.def_coil_geo(*coil_params['OuterCoil'])
+
+    # Define circuit properties
+    CC_circuit = def_circuit_prop("corecoil", 0, 0)
+    MC_circuit = def_circuit_prop("middlecoil", 0, 0)
+    OC_upper_circuit = def_circuit_prop("outercoil_upper", simulation_freq, simulation_amplitude)
+    OC_lower_circuit = def_circuit_prop("outercoil_lower", simulation_freq, -simulation_amplitude)
+
+    # Set up simulation environment
+    def_femm_problem(signal_frequency=simulation_freq)
+    build_air_geometry("Outside", 10)
+
+    # Build geometry and assign labels
+    m_label = build_core_geometry(Magnet_geo, 1)
+    cc_label = build_coil_geometry(CoreCoil_geo, CC_circuit, 2, customized_material=True)
+    mc_label = build_coil_geometry(MiddleCoil_geo, MC_circuit, 3, customized_material=True)
+    oc_upper_label = build_coil_geometry(OuterCoil_geo, OC_upper_circuit, 4, customized_material=True)
+    oc_lower_label = build_coil_geometry(OuterCoil_geo, OC_lower_circuit, 5, customized_material=True, reverse=True)
+
+    print("Magnet label:", m_label)
+    print("Core coil label:", cc_label)
+    print("Middle coil label:", mc_label)
+    print("Outer coil upper label:", oc_upper_label)
+    print("Outer coil lower label:", oc_lower_label)
+
+    # Simulation configuration
+    config = coreConfig.moving_config(-5, 1, 10)
+    lvdt_voltage = def_lvdt_data(config['steps'])
+
+    # Run the simulation
+    sim_results = lvdt_simulation(
+        moving_parts_label=[1, 2],
+        CC_config=config,
+        lvdt_voltage=lvdt_voltage,
+        OC_upper_circuit=OC_upper_circuit,
+        OC_lower_circuit=OC_lower_circuit,
+        MC_circuit=MC_circuit,
+        CC_circuit=None
+    )
+
+    # Save results
+    dataHandler.save_data(sim_results, path + filename)
+    print("Data saved to:", path + filename)
 
 
             

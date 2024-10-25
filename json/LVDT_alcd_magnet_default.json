@@ -1,0 +1,40 @@
+{
+    "Filename": "LVDT_alcd_magnet_default.h5",
+    "Excitation": {
+        "Frequency (Hz)": 10000,
+        "Amplitude (V)": 0.02
+    },
+    "Core": {
+        "Magnetcore": {
+            "Diameter (mm)": 4,
+            "Length (mm)": 10,
+            "Material": "N40"
+        },
+        "AluminumCylinder": {
+            "Inner Diameter (mm)": 6,
+            "Outer Diameter (mm)": 8,
+            "Length (mm)": 12,
+            "Material": "Aluminum 6061"
+        }
+    },
+    "Coil": {
+        "MiddleCoil": {
+            "Wire Material": "100um",
+            "Wire Diameter (mm)": 0.1,
+            "Insulation Thickness (mm)": 0,
+            "Layers": 16,
+            "Coil Length (mm)": 3,
+            "Inner Diameter (mm)": 18,
+            "Distance (mm)": 0
+        },
+        "OuterCoil": {
+            "Wire Material": "100um",
+            "Wire Diameter (mm)": 0.1,
+            "Insulation Thickness (mm)": 0,
+            "Layers": 16,
+            "Coil Length (mm)": 3,
+            "Inner Diameter (mm)": 18,
+            "Distance (mm)": 16
+        }
+    }
+}
