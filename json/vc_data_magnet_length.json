@@ -1,0 +1,33 @@
+
+{
+    "_comment": "Voice coil force data with repect to different length of the magnet core",
+
+    "VC_alucld_id07_od08": {
+        "mag_id07_od08_l04": "/alucld/VC_alucld_id07_od08_l12_magcore_d07_l04.h5",
+        "mag_id07_od08_l06": "/alucld/VC_alucld_id07_od08_l12_magcore_d07_l06.h5",
+        "mag_id07_od08_l08": "/alucld/VC_alucld_id07_od08_l12_magcore_d07_l08.h5",
+        "mag_id07_od08_l10": "/alucld/VC_alucld_id07_od08_l12_magcore_d07_l10.h5",
+        "mag_id07_od08_l12": "/alucld/VC_alucld_id07_od08_l12_magcore_d07_l12.h5"
+        },
+    "VC_alucld_id06_od08": {
+        "mag_id06_od08_l04": "/alucld/VC_alucld_id06_od08_l12_magcore_d06_l04.h5",
+        "mag_id06_od08_l06": "/alucld/VC_alucld_id06_od08_l12_magcore_d06_l06.h5",
+        "mag_id06_od08_l08": "/alucld/VC_alucld_id06_od08_l12_magcore_d06_l08.h5",
+        "mag_id06_od08_l10": "/alucld/VC_alucld_id06_od08_l12_magcore_d06_l10.h5",
+        "mag_id06_od08_l12": "/alucld/VC_alucld_id06_od08_l12_magcore_d06_l12.h5"
+        },
+    "VC_alucld_id09_od10": {
+        "mag_id09_od10_l04": "/alucld/VC_alucld_id09_od10_l12_magcore_d09_l04.h5",
+        "mag_id09_od10_l06": "/alucld/VC_alucld_id09_od10_l12_magcore_d09_l06.h5",
+        "mag_id09_od10_l08": "/alucld/VC_alucld_id09_od10_l12_magcore_d09_l08.h5",
+        "mag_id09_od10_l10": "/alucld/VC_alucld_id09_od10_l12_magcore_d09_l10.h5",
+        "mag_id09_od10_l12": "/alucld/VC_alucld_id09_od10_l12_magcore_d09_l12.h5"
+        },
+    "VC_alucld_id08_od10": {
+        "mag_id08_od10_l04": "/alucld/VC_alucld_id08_od10_l12_magcore_d08_l04.h5",
+        "mag_id08_od10_l06": "/alucld/VC_alucld_id08_od10_l12_magcore_d08_l06.h5",
+        "mag_id08_od10_l08": "/alucld/VC_alucld_id08_od10_l12_magcore_d08_l08.h5",
+        "mag_id08_od10_l10": "/alucld/VC_alucld_id08_od10_l12_magcore_d08_l10.h5",
+        "mag_id08_od10_l12": "/alucld/VC_alucld_id08_od10_l12_magcore_d08_l12.h5"
+        }
+}

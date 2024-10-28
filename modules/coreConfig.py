@@ -1,4 +1,3 @@
-
 def moving_config(init_position, step_size, steps):
     """
     Define the config for the moving coil.

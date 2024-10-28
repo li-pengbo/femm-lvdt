@@ -1,0 +1,39 @@
+{
+    "_comment": "LVDT data for different magnet lengths",
+    
+    "LVDT_magcore_d04":{
+        "l04": "/magcore/LVDT_magcore_d04_l04.h5",
+        "l06": "/magcore/LVDT_magcore_d04_l06.h5",
+        "l08": "/magcore/LVDT_magcore_d04_l08.h5",
+        "l10": "/magcore/LVDT_magcore_d04_l10.h5",
+        "l12": "/magcore/LVDT_magcore_d04_l12.h5"
+        },
+    "LVDT_magcore_d05":{
+        "l04": "/magcore/LVDT_magcore_d05_l04.h5",
+        "l06": "/magcore/LVDT_magcore_d05_l06.h5",
+        "l08": "/magcore/LVDT_magcore_d05_l08.h5",
+        "l10": "/magcore/LVDT_magcore_d05_l10.h5",
+        "l12": "/magcore/LVDT_magcore_d05_l12.h5"
+        },
+    "LVDT_magcore_d06":{
+        "l04": "/magcore/LVDT_magcore_d06_l04.h5",
+        "l06": "/magcore/LVDT_magcore_d06_l06.h5",
+        "l08": "/magcore/LVDT_magcore_d06_l08.h5",
+        "l10": "/magcore/LVDT_magcore_d06_l10.h5",
+        "l12": "/magcore/LVDT_magcore_d06_l12.h5"
+        },
+    "LVDT_magcore_d07":{    
+        "l04": "/magcore/LVDT_magcore_d07_l04.h5",
+        "l06": "/magcore/LVDT_magcore_d07_l06.h5",
+        "l08": "/magcore/LVDT_magcore_d07_l08.h5",
+        "l10": "/magcore/LVDT_magcore_d07_l10.h5",
+        "l12": "/magcore/LVDT_magcore_d07_l12.h5"
+        },
+    "LVDT_magcore_d08":{
+        "l04": "/magcore/LVDT_magcore_d08_l04.h5",
+        "l06": "/magcore/LVDT_magcore_d08_l06.h5",
+        "l08": "/magcore/LVDT_magcore_d08_l08.h5",
+        "l10": "/magcore/LVDT_magcore_d08_l10.h5",
+        "l12": "/magcore/LVDT_magcore_d08_l12.h5"
+        }
+}

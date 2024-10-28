@@ -157,6 +157,10 @@ def def_lvdt_data(num):
     MC_volt: complex, the voltage of the core coil.
     OC_low_volt: complex, the voltage of the lower outer coil.
     OC_upp_volt: complex, the voltage of the upper outer coil.
+    CC_flux: complex, the flux of the moving coil.
+    MC_flux: complex, the flux of the core coil.
+    OC_low_flux: complex, the flux of the lower outer coil.
+    OC_upp_flux: complex, the flux of the upper outer coil
     """
     num = num + 1
     return {
@@ -168,7 +172,7 @@ def def_lvdt_data(num):
         'CC_flux': np.zeros(num).astype(complex),
         'MC_flux': np.zeros(num).astype(complex),
         'OC_low_flux': np.zeros(num).astype(complex),
-        'OC_upp_flux': np.zeros(num).astype(complex),
+        'OC_upp_flux': np.zeros(num).astype(complex)
     }
 
 def def_vc_data(num):
@@ -178,11 +182,7 @@ def def_vc_data(num):
         'M_force': np.zeros(num).astype(complex),
         'MC_force': np.zeros(num).astype(complex),
         'OC_low_force': np.zeros(num).astype(complex),
-        'OC_upp_force': np.zeros(num).astype(complex),
-        'CC_flux': np.zeros(num).astype(complex),
-        'MC_flux': np.zeros(num).astype(complex),
-        'OC_low_flux': np.zeros(num).astype(complex),
-        'OC_upp_flux': np.zeros(num).astype(complex),
+        'OC_upp_force': np.zeros(num).astype(complex)
     }
 
 def lvdt_simulation(moving_parts_label, CC_config, lvdt_data, OC_upper_circuit = None, OC_lower_circuit = None, MC_circuit = None, CC_circuit = None):
@@ -337,7 +337,7 @@ def vc_simulation(moving_parts_label, CC_config, vc_data, M_label, MC_label, OC_
     except KeyboardInterrupt:
         print("Simulation Interrupted")
 
-def run_lvdt_simulation(path, filename, simulation_freq, simulation_amplitude, core_params,  coil_params):
+def run_lvdt_aircoil_simulation(path, filename, simulation_params, core_params, coil_params):
     """
     Run the LVDT simulation with specified parameters and save the results to a file.
 
@@ -346,17 +346,25 @@ def run_lvdt_simulation(path, filename, simulation_freq, simulation_amplitude, c
         filename (str): Name of the data file.
         simulation_freq (float): Simulation frequency in Hz.
         simulation_amplitude (float): Amplitude for the outer coil circuit.
-        core_params (tuple): Tuple containing (outer_diameter, inner_diameter, Material) for the core geometry.
+        core_params (tuple): Tuple containing parameters for the magnet core.
         coil_params (dict): Dictionary containing parameters for CoreCoil, MiddleCoil, and OuterCoil.
     """
+    simulation_freq = simulation_params['frequency']
+    simulation_amplitude = simulation_params['amplitude']
+    simulation_core = simulation_params['moving_core']
+
     # Define geometry for core and coils
-    Magnet_geo = geometry.def_core_geo(*core_params)
-    CoreCoil_geo = geometry.def_coil_geo(*coil_params['CoreCoil'])
-    MiddleCoil_geo = geometry.def_coil_geo(*coil_params['MiddleCoil'])
-    OuterCoil_geo = geometry.def_coil_geo(*coil_params['OuterCoil'])
+    if 'magnetcore' in core_params:
+        Magnet_geo = geometry.def_core_geo(*core_params['magnetcore'])
+    if 'corecoil' in coil_params:
+        CoreCoil_geo = geometry.def_coil_geo(*coil_params['corecoil'])
+    MiddleCoil_geo = geometry.def_coil_geo(*coil_params['middlecoil'])
+    OuterCoil_geo = geometry.def_coil_geo(*coil_params['outercoil'])
 
     # Define circuit properties
-    CC_circuit = def_circuit_prop("corecoil", 0, 0)
+    CC_circuit = None
+    if 'corecoil' in coil_params:
+        CC_circuit = def_circuit_prop("corecoil", 0, 0)
     MC_circuit = def_circuit_prop("middlecoil", 0, 0)
     OC_upper_circuit = def_circuit_prop("outercoil_upper", simulation_freq, simulation_amplitude)
     OC_lower_circuit = def_circuit_prop("outercoil_lower", simulation_freq, -simulation_amplitude)
@@ -366,27 +374,112 @@ def run_lvdt_simulation(path, filename, simulation_freq, simulation_amplitude, c
     build_air_geometry("Outside", 10)
 
     # Build geometry and assign labels
-    m_label = build_core_geometry(Magnet_geo, 1)
-    cc_label = build_coil_geometry(CoreCoil_geo, CC_circuit, 2, customized_material=True)
+    m_label = None
+    cc_label = None
+    if 'magnetcore' in core_params:
+        m_label = build_core_geometry(Magnet_geo, 1)
+    if 'corecoil' in coil_params:
+        cc_label = build_coil_geometry(CoreCoil_geo, CC_circuit, 2, customized_material=True)
+    mc_label = build_coil_geometry(MiddleCoil_geo, MC_circuit, 3, customized_material=True)
+    oc_upper_label = build_coil_geometry(OuterCoil_geo, OC_upper_circuit, 4, customized_material=True)
+    oc_lower_label = build_coil_geometry(OuterCoil_geo, OC_lower_circuit, 5, customized_material=True, reverse=True)
+    
+    print('m_label:', m_label)
+    print('cc_label:', cc_label)
+    print('mc_label:', mc_label)
+    print('oc_upper_label:', oc_upper_label)
+    print('oc_lower_label:', oc_lower_label)
+    
+    # Simulation configuration
+    lvdt_data = def_lvdt_data(simulation_core['steps'])
+    moving_parts_label = []
+    if 'magnetcore' in core_params:
+        moving_parts_label.append(m_label)
+    if 'corecoil' in coil_params:
+        moving_parts_label.append(cc_label)
+    
+    if moving_parts_label == []:
+        print("No moving parts defined. Please check the core_params.")
+        return 0
+    # Run the simulation
+    sim_results = lvdt_simulation(
+        moving_parts_label=moving_parts_label,
+        CC_config=simulation_core,
+        lvdt_data=lvdt_data,
+        OC_upper_circuit=OC_upper_circuit,
+        OC_lower_circuit=OC_lower_circuit,
+        MC_circuit=MC_circuit,
+        CC_circuit=CC_circuit
+    )
+
+    # Save results
+    dataHandler.save_data(sim_results, path + filename)
+    print("Data saved to:", path + filename)
+            
+def run_lvdt_alucoil_simulation(path, filename, simulation_params, core_params, coil_params):
+    """
+    Run the LVDT simulation with specified parameters and save the results to a file.
+
+    Parameters:
+        path (str): Path to save the data file.
+        filename (str): Name of the data file.
+        simulation_freq (float): Simulation frequency in Hz.
+        simulation_amplitude (float): Amplitude for the outer coil circuit.
+        core_params (tuple): Tuple containing (outer_diameter, inner_diameter) for the magnet geometry.
+        coil_params (dict): Dictionary containing parameters for CoreCoil, MiddleCoil, and OuterCoil.
+    """
+    simulation_freq = simulation_params['frequency']
+    simulation_amplitude = simulation_params['amplitude']
+    simulation_core = simulation_params['moving_core']
+
+    # Define geometry for core and coils
+    if 'magnetcore' in core_params:
+        Magnet_geo = geometry.def_core_geo(*core_params['magnetcore'])
+    if 'aluminumcylinder' in core_params:
+        Alu_geo  = geometry.def_cylinder_geo(*core_params['aluminumcylinder'])
+    MiddleCoil_geo = geometry.def_coil_geo(*coil_params['middlecoil'])
+    OuterCoil_geo  = geometry.def_coil_geo(*coil_params['outercoil'])
+    # Define circuit properties
+    MC_circuit = def_circuit_prop("middlecoil", 0, 0)
+    OC_upper_circuit = def_circuit_prop("outercoil_upper", simulation_freq, simulation_amplitude)
+    OC_lower_circuit = def_circuit_prop("outercoil_lower", simulation_freq, -simulation_amplitude)
+
+    # Set up simulation environment
+    def_femm_problem(signal_frequency=simulation_freq)
+    build_air_geometry("Outside", 10)
+
+    # Build geometry and assign labels
+    m_label = None
+    alu_label = None
+    if 'magnetcore' in core_params:
+        m_label = build_core_geometry(Magnet_geo, 1)
+    if 'aluminumcylinder' in core_params:
+        alu_label = build_cylinder_geometry(Alu_geo, 2)
     mc_label = build_coil_geometry(MiddleCoil_geo, MC_circuit, 3, customized_material=True)
     oc_upper_label = build_coil_geometry(OuterCoil_geo, OC_upper_circuit, 4, customized_material=True)
     oc_lower_label = build_coil_geometry(OuterCoil_geo, OC_lower_circuit, 5, customized_material=True, reverse=True)
 
-    print("Magnet label:", m_label)
-    print("Core coil label:", cc_label)
-    print("Middle coil label:", mc_label)
-    print("Outer coil upper label:", oc_upper_label)
-    print("Outer coil lower label:", oc_lower_label)
+    print("m_label:", m_label)
+    print("alu_label:", alu_label)
+    print("mc_label:", mc_label)
+    print("oc_upper_label:", oc_upper_label)
+    print("oc_lower_label:", oc_lower_label)
 
     # Simulation configuration
-    config = coreConfig.moving_config(-5, 1, 10)
-    lvdt_voltage = def_lvdt_data(config['steps'])
-
+    lvdt_data = def_lvdt_data(simulation_core['steps'])
+    moving_parts_label = []
+    if 'magnetcore' in core_params:
+        moving_parts_label.append(m_label)
+    if 'aluminumcylinder' in core_params:
+        moving_parts_label.append(alu_label)
+    if moving_parts_label == []:
+        print("No moving parts defined. Please check the core_params.")
+        return 0
     # Run the simulation
     sim_results = lvdt_simulation(
-        moving_parts_label=[1, 2],
-        CC_config=config,
-        lvdt_voltage=lvdt_voltage,
+        moving_parts_label=moving_parts_label,
+        CC_config=simulation_core,
+        lvdt_data=lvdt_data,
         OC_upper_circuit=OC_upper_circuit,
         OC_lower_circuit=OC_lower_circuit,
         MC_circuit=MC_circuit,
@@ -397,7 +490,143 @@ def run_lvdt_simulation(path, filename, simulation_freq, simulation_amplitude, c
     dataHandler.save_data(sim_results, path + filename)
     print("Data saved to:", path + filename)
 
+def run_vc_aircoil_simulation(path, filename, simulation_params, core_params,  coil_params):
+    """
+    Run the LVDT simulation with specified parameters and save the results to a file.
 
-            
+    Parameters:
+        path (str): Path to save the data file.
+        filename (str): Name of the data file.
+        simulation_freq (float): Simulation frequency in Hz.
+        simulation_amplitude (float): Amplitude for the outer coil circuit.
+        core_params (tuple): Tuple containing parameters for the magnet core.
+        coil_params (dict): Dictionary containing parameters for CoreCoil, MiddleCoil, and OuterCoil.
+    """
+    simulation_freq = simulation_params['frequency']
+    simulation_amplitude = simulation_params['amplitude']
+    simulation_core = simulation_params['moving_core']
+    # Define geometry for core and coils
+    Magnet_geo = geometry.def_core_geo(*core_params['magnetcore'])
+    if 'corecoil' in coil_params:
+        CoreCoil_geo = geometry.def_coil_geo(*coil_params['corecoil'])
+    MiddleCoil_geo = geometry.def_coil_geo(*coil_params['middlecoil'])
+    OuterCoil_geo = geometry.def_coil_geo(*coil_params['outercoil'])
 
+    # Define circuit properties
+    CC_circuit = None
+    if 'corecoil' in coil_params:
+       CC_circuit = def_circuit_prop("corecoil", 0, 0)
+    MC_circuit = def_circuit_prop("middlecoil", 0, 0)
+    OC_upper_circuit = def_circuit_prop("outercoil_upper", simulation_freq, simulation_amplitude)
+    OC_lower_circuit = def_circuit_prop("outercoil_lower", simulation_freq, -simulation_amplitude)
 
+    # Set up simulation environment
+    def_femm_problem(signal_frequency=simulation_freq)
+    build_air_geometry("Outside", 10)
+
+    # Build geometry and assign labels
+    cc_label = None
+    m_label = build_core_geometry(Magnet_geo, 1)
+    if 'corecoil' in coil_params:
+        cc_label = build_coil_geometry(CoreCoil_geo, CC_circuit, 2, customized_material=True)
+    mc_label = build_coil_geometry(MiddleCoil_geo, MC_circuit, 3, customized_material=True)
+    oc_upper_label = build_coil_geometry(OuterCoil_geo, OC_upper_circuit, 4, customized_material=True)
+    oc_lower_label = build_coil_geometry(OuterCoil_geo, OC_lower_circuit, 5, customized_material=True, reverse=True)
+
+    print("Magnet label:", m_label)
+    print("Core coil label:", cc_label)
+    print("Middle coil label:", mc_label)
+    print("Outer coil upper label:", oc_upper_label)
+    print("Outer coil lower label:", oc_lower_label)
+    
+    vc_data = def_vc_data(simulation_core['steps'])
+    moving_parts_label = []
+    if 'corecoil' in coil_params:
+        moving_parts_label.append(cc_label)
+    if 'magnetcore' in core_params:
+        moving_parts_label.append(m_label)
+    if moving_parts_label == []:
+        print("No moving parts defined in the simulation, please check the core_params.")
+        return 0
+    # Run simulation
+    sim_results = vc_simulation(
+        moving_parts_label=moving_parts_label,
+        CC_config=simulation_core,
+        vc_data=vc_data,
+        M_label=m_label,
+        MC_label=mc_label,
+        OC_upper_label=oc_upper_label,
+        OC_lower_label=oc_lower_label,
+    )
+    # Save results
+    dataHandler.save_data(sim_results, path + filename)
+    print("Data saved to:", path + filename)
+
+def run_vc_alucoil_simulation(path, filename, simulation_params, core_params,  coil_params):
+    """
+    Run the LVDT simulation with specified parameters and save the results to a file.
+
+    Parameters:
+        path (str): Path to save the data file.
+        filename (str): Name of the data file.
+        simulation_freq (float): Simulation frequency in Hz.
+        simulation_amplitude (float): Amplitude for the outer coil circuit.
+        core_params (tuple): Tuple containing parameters for the magnet core, aluminum cylinder.
+        coil_params (dict): Dictionary containing parameters for CoreCoil, MiddleCoil, and OuterCoil.
+    """
+    simulation_freq = simulation_params['frequency']
+    simulation_amplitude = simulation_params['amplitude']
+    simulation_core = simulation_params['moving_core']
+    # Define geometry for core and coils
+    Magnet_geo = geometry.def_core_geo(*core_params['magnetcore'])
+    if 'aluminumcylinder' in core_params:
+        Alu_geo = geometry.def_cylinder_geo(*core_params['aluminumcylinder'])
+    MiddleCoil_geo = geometry.def_coil_geo(*coil_params['middlecoil'])
+    OuterCoil_geo = geometry.def_coil_geo(*coil_params['outercoil'])
+
+    # Define circuit properties
+    MC_circuit = def_circuit_prop("middlecoil", 0, 0)
+    OC_upper_circuit = def_circuit_prop("outercoil_upper", simulation_freq, simulation_amplitude)
+    OC_lower_circuit = def_circuit_prop("outercoil_lower", simulation_freq, -simulation_amplitude)
+
+    # Set up simulation environment
+    def_femm_problem(signal_frequency=simulation_freq)
+    build_air_geometry("Outside", 10)
+
+    # Build geometry and assign labels
+    alu_label = None
+    m_label = build_core_geometry(Magnet_geo, 1)
+    if 'aluminumcylinder' in core_params:
+        alu_label = build_cylinder_geometry(Alu_geo, 2)
+    mc_label = build_coil_geometry(MiddleCoil_geo, MC_circuit, 3, customized_material=True)
+    oc_upper_label = build_coil_geometry(OuterCoil_geo, OC_upper_circuit, 4, customized_material=True)
+    oc_lower_label = build_coil_geometry(OuterCoil_geo, OC_lower_circuit, 5, customized_material=True, reverse=True)
+
+    print("m_label:", m_label)
+    print("alu_label:", alu_label)
+    print("mc_label:", mc_label)
+    print("oc_upper_label:", oc_upper_label)
+    print("oc_lower_label:", oc_lower_label)
+    
+    vc_data = def_vc_data(simulation_core['steps'])
+    moving_parts_label = []
+    if 'magnetcore' in core_params:
+        moving_parts_label.append(m_label)
+    if 'aluminumcylinder' in core_params:
+        moving_parts_label.append(alu_label)
+    if moving_parts_label == []:
+        print("No moving parts specified, please check the core_params.")
+        return 0
+
+    sim_results = vc_simulation(
+        moving_parts_label=moving_parts_label,
+        CC_config=simulation_core,
+        vc_data=vc_data,
+        M_label=m_label, 
+        MC_label=mc_label,
+        OC_upper_label=oc_upper_label,
+        OC_lower_label=oc_lower_label,
+    )
+    # Save results
+    dataHandler.save_data(sim_results, path + filename)
+    print("Data saved to:", path + filename)

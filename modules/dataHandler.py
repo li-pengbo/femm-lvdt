@@ -1,5 +1,6 @@
 import numpy as np
 import h5py
+import json
 
 def save_data(data, filename):
     with h5py.File(filename, 'w') as f:
@@ -62,7 +63,39 @@ def get_data(folder_path, data = None, group = None, key=None, ):
         for k, file_path in group_data.items():
             processed_data[k] = data_preprocessing(load_data(folder_path + file_path))
         return processed_data
+
+#TODO validate the function to see if it works
+def get_data_from_json(datafolder_path, jsonfile_path, group_key = None, file_key = None):
+    jsonfile = {}
     
+    with open(jsonfile_path) as f:
+        jsonfile = json.load(f)
+    
+    if group_key is None:
+        data = {}
+        group_keys = list(jsonfile.keys())
+        if "_comment" in group_keys:
+            group_keys.remove('_comment')
+        for group_key in group_keys:
+            data[group_key] = {}
+            file_keys = jsonfile[group_key]
+            for file_key in file_keys:
+                filepath = jsonfile[group_key][file_key]
+                data[group_key][file_key]=data_preprocessing(load_data(datafolder_path + filepath))
+        return data
+    
+    file_keys = jsonfile[group_key]
+    if file_key:
+        if file_key in file_keys:
+            filepath = file_keys[file_key]
+            return data_preprocessing(load_data(datafolder_path + filepath))
+        else:
+            raise ValueError(f"Key {file_key} not found in group {group_key}.")
+    else:
+        processed_data = {}
+        for k, filepath in file_keys.items():
+            processed_data[k] = data_preprocessing(load_data(datafolder_path + filepath))
+        return processed_data
 
 def print_data_keys(data, depth =None, current_depth=0):
     if isinstance(data, dict):
