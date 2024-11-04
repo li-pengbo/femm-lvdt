@@ -97,6 +97,17 @@ def get_data_from_json(datafolder_path, jsonfile_path, group_key = None, file_ke
             processed_data[k] = data_preprocessing(load_data(datafolder_path + filepath))
         return processed_data
 
+def get_data_from_dict(datafolder_path, data_dict, key = None):
+    ddict = {}
+    if key is None:
+        file_keys = list(data_dict.keys())
+        for file_key in file_keys:
+            filepath = data_dict[file_key]
+            ddict[file_key]=data_preprocessing(load_data(datafolder_path + filepath))
+        return ddict
+    else:
+        return data_preprocessing(load_data(datafolder_path + data_dict[key]))
+    
 def print_data_keys(data, depth =None, current_depth=0):
     if isinstance(data, dict):
         for key in data:

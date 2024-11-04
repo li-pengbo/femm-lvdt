@@ -337,7 +337,7 @@ def vc_simulation(moving_parts_label, CC_config, vc_data, M_label, MC_label, OC_
     except KeyboardInterrupt:
         print("Simulation Interrupted")
 
-def run_lvdt_aircoil_simulation(path, filename, simulation_params, core_params, coil_params):
+def run_lvdt_aircoil_simulation(path, filename, simulation_params, core_params, coil_params, customized_material = False):
     """
     Run the LVDT simulation with specified parameters and save the results to a file.
 
@@ -379,10 +379,10 @@ def run_lvdt_aircoil_simulation(path, filename, simulation_params, core_params, 
     if 'magnetcore' in core_params:
         m_label = build_core_geometry(Magnet_geo, 1)
     if 'corecoil' in coil_params:
-        cc_label = build_coil_geometry(CoreCoil_geo, CC_circuit, 2, customized_material=True)
-    mc_label = build_coil_geometry(MiddleCoil_geo, MC_circuit, 3, customized_material=True)
-    oc_upper_label = build_coil_geometry(OuterCoil_geo, OC_upper_circuit, 4, customized_material=True)
-    oc_lower_label = build_coil_geometry(OuterCoil_geo, OC_lower_circuit, 5, customized_material=True, reverse=True)
+        cc_label = build_coil_geometry(CoreCoil_geo, CC_circuit, 2, customized_material=customized_material)
+    mc_label = build_coil_geometry(MiddleCoil_geo, MC_circuit, 3, customized_material=customized_material)
+    oc_upper_label = build_coil_geometry(OuterCoil_geo, OC_upper_circuit, 4, customized_material=customized_material)
+    oc_lower_label = build_coil_geometry(OuterCoil_geo, OC_lower_circuit, 5, customized_material=customized_material, reverse=True)
     
     print('m_label:', m_label)
     print('cc_label:', cc_label)
@@ -416,7 +416,7 @@ def run_lvdt_aircoil_simulation(path, filename, simulation_params, core_params, 
     dataHandler.save_data(sim_results, path + filename)
     print("Data saved to:", path + filename)
             
-def run_lvdt_alucoil_simulation(path, filename, simulation_params, core_params, coil_params):
+def run_lvdt_alucoil_simulation(path, filename, simulation_params, core_params, coil_params, customized_material = False):
     """
     Run the LVDT simulation with specified parameters and save the results to a file.
 
@@ -455,9 +455,9 @@ def run_lvdt_alucoil_simulation(path, filename, simulation_params, core_params, 
         m_label = build_core_geometry(Magnet_geo, 1)
     if 'aluminumcylinder' in core_params:
         alu_label = build_cylinder_geometry(Alu_geo, 2)
-    mc_label = build_coil_geometry(MiddleCoil_geo, MC_circuit, 3, customized_material=True)
-    oc_upper_label = build_coil_geometry(OuterCoil_geo, OC_upper_circuit, 4, customized_material=True)
-    oc_lower_label = build_coil_geometry(OuterCoil_geo, OC_lower_circuit, 5, customized_material=True, reverse=True)
+    mc_label = build_coil_geometry(MiddleCoil_geo, MC_circuit, 3, customized_material=customized_material)
+    oc_upper_label = build_coil_geometry(OuterCoil_geo, OC_upper_circuit, 4, customized_material=customized_material)
+    oc_lower_label = build_coil_geometry(OuterCoil_geo, OC_lower_circuit, 5, customized_material=customized_material, reverse=True)
 
     print("m_label:", m_label)
     print("alu_label:", alu_label)
@@ -490,7 +490,7 @@ def run_lvdt_alucoil_simulation(path, filename, simulation_params, core_params, 
     dataHandler.save_data(sim_results, path + filename)
     print("Data saved to:", path + filename)
 
-def run_vc_aircoil_simulation(path, filename, simulation_params, core_params,  coil_params):
+def run_vc_aircoil_simulation(path, filename, simulation_params, core_params,  coil_params, customized_material = False):
     """
     Run the LVDT simulation with specified parameters and save the results to a file.
 
@@ -528,10 +528,10 @@ def run_vc_aircoil_simulation(path, filename, simulation_params, core_params,  c
     cc_label = None
     m_label = build_core_geometry(Magnet_geo, 1)
     if 'corecoil' in coil_params:
-        cc_label = build_coil_geometry(CoreCoil_geo, CC_circuit, 2, customized_material=True)
-    mc_label = build_coil_geometry(MiddleCoil_geo, MC_circuit, 3, customized_material=True)
-    oc_upper_label = build_coil_geometry(OuterCoil_geo, OC_upper_circuit, 4, customized_material=True)
-    oc_lower_label = build_coil_geometry(OuterCoil_geo, OC_lower_circuit, 5, customized_material=True, reverse=True)
+        cc_label = build_coil_geometry(CoreCoil_geo, CC_circuit, 2, customized_material=customized_material)
+    mc_label = build_coil_geometry(MiddleCoil_geo, MC_circuit, 3, customized_material=customized_material)
+    oc_upper_label = build_coil_geometry(OuterCoil_geo, OC_upper_circuit, 4, customized_material=customized_material)
+    oc_lower_label = build_coil_geometry(OuterCoil_geo, OC_lower_circuit, 5, customized_material=customized_material, reverse=True)
 
     print("Magnet label:", m_label)
     print("Core coil label:", cc_label)
@@ -562,7 +562,7 @@ def run_vc_aircoil_simulation(path, filename, simulation_params, core_params,  c
     dataHandler.save_data(sim_results, path + filename)
     print("Data saved to:", path + filename)
 
-def run_vc_alucoil_simulation(path, filename, simulation_params, core_params,  coil_params):
+def run_vc_alucoil_simulation(path, filename, simulation_params, core_params,  coil_params, customized_material = False):
     """
     Run the LVDT simulation with specified parameters and save the results to a file.
 
@@ -598,9 +598,9 @@ def run_vc_alucoil_simulation(path, filename, simulation_params, core_params,  c
     m_label = build_core_geometry(Magnet_geo, 1)
     if 'aluminumcylinder' in core_params:
         alu_label = build_cylinder_geometry(Alu_geo, 2)
-    mc_label = build_coil_geometry(MiddleCoil_geo, MC_circuit, 3, customized_material=True)
-    oc_upper_label = build_coil_geometry(OuterCoil_geo, OC_upper_circuit, 4, customized_material=True)
-    oc_lower_label = build_coil_geometry(OuterCoil_geo, OC_lower_circuit, 5, customized_material=True, reverse=True)
+    mc_label = build_coil_geometry(MiddleCoil_geo, MC_circuit, 3, customized_material=customized_material)
+    oc_upper_label = build_coil_geometry(OuterCoil_geo, OC_upper_circuit, 4, customized_material=customized_material)
+    oc_lower_label = build_coil_geometry(OuterCoil_geo, OC_lower_circuit, 5, customized_material=customized_material, reverse=True)
 
     print("m_label:", m_label)
     print("alu_label:", alu_label)
