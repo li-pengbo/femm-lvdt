@@ -44,25 +44,28 @@ def print_file_keys(group=None, data = None,  show_all=False):
                 for k in data[group_name]:
                     print(f"  {k}")
 
-def get_data(folder_path, data = None, group = None, key=None, ):
+# def get_data(folder_path, data = None, group = None, key=None, ):
 
-    if group not in data:
-        raise ValueError(f"Group {group} not found in data paths.")
-    if not group:
-        raise ValueError("Group not specified.")
-    group_data = data[group]
+#     if group not in data:
+#         raise ValueError(f"Group {group} not found in data paths.")
+#     if not group:
+#         raise ValueError("Group not specified.")
+#     group_data = data[group]
 
-    if key:
-        if key in group_data:
-            file_path = group_data[key]
-            return data_preprocessing(load_data(folder_path + file_path))
-        else:
-            raise ValueError(f"Key {key} not found in group {group}.")
-    else:
-        processed_data = {}
-        for k, file_path in group_data.items():
-            processed_data[k] = data_preprocessing(load_data(folder_path + file_path))
-        return processed_data
+#     if key:
+#         if key in group_data:
+#             file_path = group_data[key]
+#             return data_preprocessing(load_data(folder_path + file_path))
+#         else:
+#             raise ValueError(f"Key {key} not found in group {group}.")
+#     else:
+#         processed_data = {}
+#         for k, file_path in group_data.items():
+#             processed_data[k] = data_preprocessing(load_data(folder_path + file_path))
+#         return processed_data
+
+def get_data(file_path,show_keys=False):
+    return data_preprocessing(load_data(file_path, show_keys))
 
 #TODO validate the function to see if it works
 def get_data_from_json(datafolder_path, jsonfile_path, group_key = None, file_key = None):
@@ -81,7 +84,7 @@ def get_data_from_json(datafolder_path, jsonfile_path, group_key = None, file_ke
             file_keys = jsonfile[group_key]
             for file_key in file_keys:
                 filepath = jsonfile[group_key][file_key]
-                data[group_key][file_key]=data_preprocessing(load_data(datafolder_path + filepath))
+                data[group_key][file_key]=get_data(datafolder_path + filepath)
         return data
     
     file_keys = jsonfile[group_key]
@@ -94,7 +97,7 @@ def get_data_from_json(datafolder_path, jsonfile_path, group_key = None, file_ke
     else:
         processed_data = {}
         for k, filepath in file_keys.items():
-            processed_data[k] = data_preprocessing(load_data(datafolder_path + filepath))
+            processed_data[k] = get_data(datafolder_path + filepath)
         return processed_data
 
 def get_data_from_dict(datafolder_path, data_dict, key = None):
@@ -103,10 +106,10 @@ def get_data_from_dict(datafolder_path, data_dict, key = None):
         file_keys = list(data_dict.keys())
         for file_key in file_keys:
             filepath = data_dict[file_key]
-            ddict[file_key]=data_preprocessing(load_data(datafolder_path + filepath))
+            ddict[file_key]=get_data(datafolder_path + filepath)
         return ddict
     else:
-        return data_preprocessing(load_data(datafolder_path + data_dict[key]))
+        return get_data(datafolder_path + data_dict[key])
     
 def print_data_keys(data, depth =None, current_depth=0):
     if isinstance(data, dict):
