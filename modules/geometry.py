@@ -36,27 +36,27 @@ def def_coil_geo(wire_material, wire_diameter, wire_insulation, coil_layer, coil
             'turns_perlayer': turns_perlayer,
             'turns': turns}
 
-def def_core_geo(diameter, length, material):
+def def_core_geo(diameter, length, material, offset):
     """
     Define the geometry of the core material.
     Args:
     diameter: float, the diameter of the core.
     length: float, the length of the core.
     material: str, the material of the core.
-    shift: float, the initial position shift of the core.
+    offset: float, the initial position shift of the core.
     """
     diameter = diameter
     length = length
     material = material
-    upper_pos = length / 2
-    lower_pos = -length / 2
+    upper_pos = (length / 2)  + offset
+    lower_pos = (-length / 2) + offset
     return {'diameter': diameter, 
             'length': length, 
             'material': material, 
             'upper_pos': upper_pos, 
             'lower_pos': lower_pos}
 
-def def_cylinder_geo(inner_diameter, outer_diameter, length, material):
+def def_cylinder_geo(inner_diameter, outer_diameter, length, material, offset):
     """
     Define the geometry of the cylinder material.
     Args:
@@ -64,6 +64,7 @@ def def_cylinder_geo(inner_diameter, outer_diameter, length, material):
     outer-diameter: float, the outer-diameter of the cylinder.
     length: float, the length of the cylinder.
     material: str, the material of the cylinder.
+    offset: float, the initial position shift of the cylinder
     """
     upper_pos = length / 2
     lower_pos = -length / 2
