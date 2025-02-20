@@ -5,7 +5,7 @@
       "initial_position": -5,
       "stepsize": 1,
       "steps": 10,
-      "moving_elements": [1, 2 ]
+      "moving_elements": [4,5]
     },
 
     "air_space": {
@@ -29,14 +29,14 @@
         "offset": 0,
         "wire_diameter": 0.2,
         "insulation": 0.0165,
-        "layers": 16,
+        "layers": 2,
         "material": "RS wire",
         "is_customized_material": true,
         "circuit_name": "Middle_Coil",
         "circuit_type": 1,
         "circuit_current": 0,
         "magdir": 0,
-        "automesh": 1,
+        "automesh": 0,
         "meshsize": 0.1
       },
 
@@ -47,14 +47,14 @@
         "offset": 8,
         "wire_diameter": 0.2,
         "insulation": 0.0165,
-        "layers": 16,
+        "layers": 2,
         "material": "RS wire",
         "is_customized_material": true,
         "circuit_name": "Upper_Coil",
         "circuit_type": 1,
         "circuit_current": 0.02,
         "magdir": 0,
-        "automesh": 1,
+        "automesh": 0,
         "meshsize": 0.1
       },
       
@@ -65,19 +65,20 @@
         "offset": -8,
         "wire_diameter": 0.2,
         "insulation": 0.0165,
-        "layers": 16,
+        "layers": 2,
         "material": "RS wire",
         "is_customized_material": true,
         "circuit_name": "Lower_Coil",
         "circuit_type": 1,
         "circuit_current": -0.02,
         "magdir": 0,
-        "automesh": 1,
+        "automesh": 0,
         "meshsize": 0.1
       }
     ],
 
-    "core": {
+    "cores": [
+      {
       "group_id": 4,
       "diameter": 6,
       "length": 10,
@@ -85,11 +86,13 @@
       "material": "N40",
       "is_customized_material": false,
       "magdir": 90,
-      "automesh": 1,
+      "automesh": 0,
       "meshsize": 0.1
-    },
+      }
+    ],
     
-    "shell": {
+    "shells": [
+      {
       "group_id": 5,
       "inner_diameter": 6,
       "outer_diameter": 14,
@@ -98,8 +101,9 @@
       "material": "Aluminum, 6061-T6",
       "is_customized_material": false,
       "magdir": 0,
-      "automesh": 1,
+      "automesh": 0,
       "meshsize": 0.1
-    }
+      }
+    ]
   }
   

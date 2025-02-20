@@ -1,4 +1,4 @@
-# femm_simulator/core/AirModel.py
+# LVDT_simulation/models/air.py
 import sys
 sys.path.append("../")
 import femm
@@ -7,11 +7,11 @@ from models.base import BaseParams, BaseModel
 from simulation.material import MaterialHandler as mat_handler
 @dataclass
 class AirParams(BaseParams):
-    boundary_id: int = 10                   # 边界号
-    boundary_name: str = "Outside"          # 边界名称
+    boundary_id: int = 10                   # Boundary ID
+    boundary_name: str = "Outside"          # Boundary Name
 
-    inner_radius: float = 100.0             # 内径 (mm)
-    outer_radius: float = 300.0             # 外径 (mm)
+    inner_radius: float = 100.0             # Inner radius (mm)
+    outer_radius: float = 300.0             # Outer radius (mm)
 
 class AirModel(BaseModel[AirParams]):
     def __init__(self, **params):

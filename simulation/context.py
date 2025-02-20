@@ -1,4 +1,4 @@
-# femm_simulator/core/context.py
+# LVDT_simulation/simulation/context.py
 import femm
 import logging
 from typing import Generator

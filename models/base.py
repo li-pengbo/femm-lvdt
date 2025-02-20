@@ -1,17 +1,18 @@
+# LVDT_simulation/models/base.py
 from dataclasses import dataclass, field, asdict
 from typing import Dict, Any, Generic, TypeVar
 
 
 @dataclass
 class BaseParams:
-    group_id: int                       # 组号
+    group_id: int                       # Group ID
     
-    material: str                       # 材料
-    is_customized_material: bool        # 是否自定义材料
+    material: str                       # Material Name
+    is_customized_material: bool        # Whether the material is customized
 
-    magdir: int                         # 磁场方向
-    automesh: int                       # 是否自动网格: 0:off, 1:on
-    meshsize: float                     # 网格大小
+    magdir: int                         # Magnetic direction
+    automesh: int                       # Auto mesh, on/off: 0:off, 1:on
+    meshsize: float                     # Mesh size
 
 T = TypeVar('T', bound='BaseParams')
 

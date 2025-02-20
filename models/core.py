@@ -1,4 +1,4 @@
-# femm_simulator/core/CoreModel.py
+# LVDT_simulation/models/core.py
 import sys
 sys.path.append("../")
 import femm
@@ -7,12 +7,12 @@ from models.base import BaseParams, BaseModel
 from simulation.material import MaterialHandler as mat_handler
 @dataclass
 class CoreParams(BaseParams):
-    diameter: float                             # 直径 (mm)
-    length: float                               # 长度 (mm)
-    offset: float                               # 位置偏移 (mm)
+    diameter: float                             # Core diameter (mm)
+    length: float                               # Core length (mm)
+    offset: float                               # Offset (mm)
 
-    upper_pos: float = field(init=False)        # 上端位置 (mm)
-    lower_pos: float = field(init=False)        # 下端位置 (mm)
+    upper_pos: float = field(init=False)        # Upper position (mm)
+    lower_pos: float = field(init=False)        # Lower position (mm)
 
     def __post_init__(self):
         self.upper_pos = self.offset + self.length/2

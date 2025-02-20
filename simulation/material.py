@@ -1,4 +1,4 @@
-# femm_simulator/core/materials.py
+# LVDT_simulation/simulation/material.py
 from typing import Dict, Any
 import femm
 class MaterialHandler:
@@ -45,40 +45,40 @@ class MaterialHandler:
 
     @staticmethod
     def get_builtin_material(name: str) -> None:
-        """获取FEMM内置材料
+        """Get built-in material
         
         Args:
-            name: 内置材料名称
+            name: Built-in material name
             
         Raises:
-            ValueError: 材料不存在或获取失败
+            ValueError: Material not found
         """
         try:
             femm.mi_getmaterial(name)
         except Exception as e:
             raise ValueError(
-                f"无法获取内置材料 '{name}'. 请检查：\n"
-                "1. 材料名称是否正确\n"
-                "2. FEMM是否处于磁学模式"
+                f"Material '{name}' not found. Please check:\n"
+                "1. Material name is correct\n"
+                "2. FEMM is in magnetostatic mode"
             ) from e
 
     @classmethod
     def get_custom_material(cls, name: str) -> None:
-        """获取预定义自定义材料
+        """Get custom material
         
         Args:
-            name: 预定义的自定义材料名称
+            name: Pre-defined custom material name
             
         Raises:
-            KeyError: 材料未预定义
-            RuntimeError: FEMM操作失败
+            KeyError: Material not defined
+            RuntimeError: FEMM operation failed
         """
         try:
             params = cls._CUSTOM_MATERIALS[name]
         except KeyError:
             available = list(cls._CUSTOM_MATERIALS.keys())
             raise KeyError(
-                f"自定义材料 '{name}' 未预定义。可用材料: {available}"
+                f"Custom material '{name}' not defined. Available materials: {available}"
             ) from None
 
         try:
@@ -100,20 +100,20 @@ class MaterialHandler:
             )
         except Exception as e:
             raise RuntimeError(
-                f"创建材料 '{name}' 失败，参数: {params}"
+                f"Failed to create material '{name}', parameters: {params}"
             ) from e
 
     @classmethod
     def add_custom_material(cls, name: str, **kwargs) -> None:
-        """动态添加新自定义材料
+        """Add custom material
         
         Args:
-            name: 材料唯一名称
-            **kwargs: 材料参数
+            name: Custom material name
+            **kwargs: Material parameters
             
         Raises:
-            ValueError: 材料已存在
+            ValueError: Material already exists
         """
         if name in cls._CUSTOM_MATERIALS:
-            raise ValueError(f"材料 '{name}' 已存在")
+            raise ValueError(f"Material '{name}' already exists")
         cls._CUSTOM_MATERIALS[name] = kwargs

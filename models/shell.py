@@ -1,4 +1,4 @@
-# femm_simulator/core/ShellModel.py
+# LVDT_simulation/models/shell.py
 import sys
 sys.path.append("../")
 import femm
@@ -7,13 +7,13 @@ from models.base import BaseParams, BaseModel
 from simulation.material import MaterialHandler as mat_handler
 @dataclass
 class ShellParams(BaseParams):
-    inner_diameter: float                       # 内径 (mm)
-    outer_diameter: float                       # 外径 (mm)
-    length: float                               # 长度 (mm)
-    offset: float                               # 位置偏移 (mm)
+    inner_diameter: float                       # Shell inner diameter (mm)
+    outer_diameter: float                       # Shell outer diameter (mm)
+    length: float                               # Shell length (mm)
+    offset: float                               # Offset (mm)
 
-    upper_pos: float = field(init=False)        # 上端位置 (mm)
-    lower_pos: float = field(init=False)        # 下端位置 (mm)
+    upper_pos: float = field(init=False)        # Upper position (mm)
+    lower_pos: float = field(init=False)        # Lower position (mm)
 
     def __post_init__(self):
         self.upper_pos = self.offset + self.length/2
