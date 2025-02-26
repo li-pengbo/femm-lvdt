@@ -34,7 +34,22 @@ class MaterialHandler:
             'Phi_hy': 0,
             'NStrands': 1,
             'WireD': 0.2
-        }
+        },
+        "31 AWG": {
+            'mu_x': 1,
+            'mu_y': 1,
+            'H_c': 0,
+            'J': 0,
+            'Cduct': 58,
+            'Lam_d': 0,
+            'Phi_hmax': 0,
+            'Lam_fill': 1,
+            'LamType': 3,
+            'Phi_hx': 0,
+            'Phi_hy': 0,
+            'NStrands': 1,
+            'WireD': 0.2261
+        },
     }
     @classmethod
     def get_material(cls, name: str, customized: bool) -> None:

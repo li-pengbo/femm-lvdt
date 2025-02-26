@@ -1,6 +1,6 @@
 .idea/
 .vscode/
-data/femm_files/
+data/
 data/vc_files/
 models/__pycache__/
 simulation/__pycache__/
