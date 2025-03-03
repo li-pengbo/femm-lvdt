@@ -38,20 +38,25 @@ def generate_vc_data(config: Dict[str, float]) -> Dict[str, Dict[str, Any]]:
     data_dict['position'] = np.linspace(init_position, init_position + steps * stepsize, steps + 1)
 
     coil_names = [coil['circuit_name'] for coil in config['coils']]
-    core_names = ["core_"+str(core['group_id']) for core in config['cores']]
-    shell_names = ["shell_"+str(shell['group_id']) for shell in config['shells']]
+
     for coil_name in coil_names:
         data_dict[coil_name] = {}
         for signal in _VC_SIGNAL:
             data_dict[coil_name][signal] = np.zeros(steps+1, dtype=complex)
-    for core_name in core_names:
-        data_dict[core_name] = {}
-        for signal in _VC_SIGNAL:
-            data_dict[core_name][signal] = np.zeros(steps+1, dtype=complex)
-    for shell_name in shell_names:
-        data_dict[shell_name] = {}
-        for signal in _VC_SIGNAL:
-            data_dict[shell_name][signal] = np.zeros(steps+1, dtype=complex)
+
+    if 'cores' in config:
+        core_names = ["core_"+str(core['group_id']) for core in config['cores']]
+        for core_name in core_names:
+            data_dict[core_name] = {}
+            for signal in _VC_SIGNAL:
+                data_dict[core_name][signal] = np.zeros(steps+1, dtype=complex)
+                
+    if 'shells' in config:
+        shell_names = ["shell_"+str(shell['group_id']) for shell in config['shells']]
+        for shell_name in shell_names:
+            data_dict[shell_name] = {}
+            for signal in _VC_SIGNAL:
+                data_dict[shell_name][signal] = np.zeros(steps+1, dtype=complex)
     
     return data_dict
 ##########################################################
@@ -121,6 +126,15 @@ def get_lvdt_data(data_dict, data_type: str, flip_sign: bool = False):
             data[key][f"{data_type}_abs"] = abs_data
     return data
 
+def get_vc_data(data_dict):
+    data = {}
+    for key, value in data_dict['data'].items():
+        if key == 'position':
+            data[key] = value
+        else:
+            for signal in _VC_SIGNAL:
+                data[key] = {signal: value[signal].real}
+    return data
 ##########################################################
 #### Define the method to fit the simulation data     ####
 ##########################################################
@@ -140,7 +154,7 @@ def linear_fit(xdata, ydata, unit = "V", method = "linear-regression"):
         return {"slope": slope, "intercept": intercept, "r_value": r_value, "p_value": p_value, "std_err": std_err}
     
     elif method == "curve-fit":
-        slope, intercept = np.polyfit(xdata, ydata, 1)
+        # slope, intercept = np.polyfit(xdata, ydata, 1)
         popt, _ = curve_fit(linear_model, xdata, ydata)
         return {"slope": popt[0], "intercept": popt[1]}
 
@@ -165,7 +179,7 @@ def plot_linear_fit(xdata, ydata, unit="V", xlabel=None, ylabel=None, title=None
     intercept = fit_params["intercept"]
     plt.figure(figsize=fig_size)
     plt.plot(xdata, ydata, marker = 'o', label='Original data')
-    plt.plot(xdata, slope * xdata + intercept, 'r', label='Fitted data')
+    plt.plot(xdata, slope * xdata + intercept, 'r', label=f'Fitted data response: {slope:.4f}')
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)

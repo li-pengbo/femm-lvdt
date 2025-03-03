@@ -32,7 +32,7 @@ class CoilParams(BaseParams):
         self.lower_pos = self.offset - self.bobbin_length/2
         self.wire_pitch = self.wire_diameter + 2*self.insulation
         self.outer_diameter = self.inner_diameter + 2*self.layers*self.wire_pitch
-        self.turns_per_layer = math.floor(self.bobbin_length / self.wire_pitch)
+        self.turns_per_layer = self.bobbin_length / self.wire_pitch
         self.total_turns = self.turns_per_layer * self.layers
 
 class CoilModel(BaseModel[CoilParams]):

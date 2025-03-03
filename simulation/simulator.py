@@ -152,7 +152,7 @@ class SimulatorManager:
                     key = f"coil_{i}"
                     self.models[key] = CoilModel(**coil_params)
                     self.config['coils'][i-1] = self.models[key].get_params
-                logging.info("CoilModels created")
+                logging.info("Created {len(self.config['coils'])} CoilModels")
             
             if 'cores' in self.config and isinstance(self.config['cores'], list):
                 for i, core_params in enumerate(self.config['cores'], start=1):
@@ -199,7 +199,7 @@ class LVDTsimulator(BaseSimulator):
             self.load_state()
             
             if lvdt_data['position'][i] == 0:
-                femm.mo_showdensityplot(1,0.0001, 0.0001, 1.0e-9, "bmag")
+                femm.mo_showdensityplot(1, 0, 0.0001, 1.0e-9, "bmag")
                 femm.mo_zoom(-2,-50,50,50)
                 femm.mo_refreshview()
 
@@ -243,8 +243,16 @@ class VoiceCoilSimulator(BaseSimulator):
     def simulate(self, config: Dict):
         coil_names = [coil['circuit_name'] for coil in config['coils']]
         coil_labels = [coil['group_id'] for coil in config['coils']]
-        core_labels = [core['group_id'] for core in config['cores']]
-        shell_labels = [shell['group_id'] for shell in config['shells']]
+
+        if 'cores' in config:
+            core_labels = [core['group_id'] for core in config['cores']]
+        else:
+            core_labels = []
+        if 'shells' in config:
+            shell_labels = [shell['group_id'] for shell in config['shells']]
+        else:
+            shell_labels = []
+
         moving_elements = config["simulation"]["moving_elements"]
         vc_data = generate_vc_data(config)
 
@@ -260,7 +268,7 @@ class VoiceCoilSimulator(BaseSimulator):
             self.load_state()
             
             if vc_data['position'][i] == 0:
-                femm.mo_showdensityplot(1,0.0001, 0.0001, 1.0e-9, "bmag")
+                femm.mo_showdensityplot(1, 0,  0.0001, 1.0e-9, "bmag")
                 femm.mo_zoom(-2,-50,50,50)
                 femm.mo_refreshview()
 
@@ -282,28 +290,31 @@ class VoiceCoilSimulator(BaseSimulator):
         femm.mi_loadsolution()
 
     def collect_results(self, vc_data, step, coil_names, coil_labels, core_labels, shell_labels):
+
         for coil_name, coil_label in zip(coil_names, coil_labels):
             femm.mo_groupselectblock(coil_label)
-            force = femm.mo_blockintegral(19)
-            vc_data[coil_name]['force'][step] = force
+            coil_force = femm.mo_blockintegral(19)
+            vc_data[coil_name]['force'][step] = coil_force
             femm.mo_clearblock()
-            logging.info(f"{coil_name} - force: {force}")
+            logging.info(f"{coil_name} - force: {coil_force}")
 
-        for core in core_labels:
-            core_name = "core_" + str(core)
-            femm.mo_groupselectblock(core)
-            force = femm.mo_blockintegral(19)
-            vc_data[core_name]['force'][step] = force
-            femm.mo_clearblock()
-            logging.info(f"{core_name} - force: {force}")
-
-        for shell in shell_labels:
-            shell_name = "shell_" + str(shell)
-            femm.mo_groupselectblock(shell)
-            force = femm.mo_blockintegral(19)
-            vc_data[shell_name]['force'][step] = force
-            femm.mo_clearblock()
-            logging.info(f"{shell_name} - force: {force}")
+        if core_labels:
+            for core in core_labels:
+                core_name = f"core_{core}"
+                femm.mo_groupselectblock(core)
+                core_force = femm.mo_blockintegral(19)
+                vc_data[core_name]['force'][step] = core_force
+                femm.mo_clearblock()
+                logging.info(f"{core_name} - force: {core_force}")
+                
+        if shell_labels:
+            for shell in shell_labels:
+                shell_name = f"shell_{shell}"
+                femm.mo_groupselectblock(shell)
+                shell_force = femm.mo_blockintegral(19)
+                vc_data[shell_name]['force'][step] =  shell_force #0
+                femm.mo_clearblock()
+                logging.info(f"{shell_name} - force: {shell_force}")
 
     def move_elements(self, moving_elements, stepsize):
         for element in moving_elements:
