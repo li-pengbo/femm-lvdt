@@ -4,7 +4,7 @@ sys.path.append("../")
 import femm
 from dataclasses import dataclass, field
 from models.base import BaseParams, BaseModel
-from simulation.material import MaterialHandler as mat_handler
+from core.material import MaterialHandler as mat_handler
 @dataclass
 class CoreParams(BaseParams):
     diameter: float                             # Core diameter (mm)

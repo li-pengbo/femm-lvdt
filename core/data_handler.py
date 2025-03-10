@@ -86,6 +86,8 @@ def load_data(file_path: str):
 def get_config_data(data_dict):
     config_data = {}
     
+    config_data['simulation'] = data_dict.get("config", {}).get("simulation", {})
+
     element_mapping = {
         'coils':  lambda item: (item['circuit_name'], item),
         'cores':  lambda item: (f"core_{item['group_id']}", item),
@@ -135,9 +137,9 @@ def get_vc_data(data_dict):
             for signal in _VC_SIGNAL:
                 data[key] = {signal: value[signal].real}
     return data
-##########################################################
-#### Define the method to fit the simulation data     ####
-##########################################################
+###############################################################
+#### Define the method to fit the lvdt simulation data     ####
+###############################################################
 
 def normalize(pickup_signal, excitation_signal):
     return pickup_signal * excitation_signal
@@ -154,10 +156,95 @@ def linear_fit(xdata, ydata, unit = "V", method = "linear-regression"):
         return {"slope": slope, "intercept": intercept, "r_value": r_value, "p_value": p_value, "std_err": std_err}
     
     elif method == "curve-fit":
-        # slope, intercept = np.polyfit(xdata, ydata, 1)
         popt, _ = curve_fit(linear_model, xdata, ydata)
         return {"slope": popt[0], "intercept": popt[1]}
 
+def linear_analysis_RE(xdata, ydata):
+
+    slope, intercept, _, _, _= linregress(xdata, ydata)
+    y_pred = slope * xdata + intercept
+    y_error = (np.abs(ydata - y_pred) / np.abs(ydata)) * 100
+
+    return {"response":{"slope": slope, "intercept": intercept},
+            "predict": y_pred,
+            "error": y_error}
+
+def linear_analysis_FS(xdata, ydata):
+
+    slope, intercept, _, _, _= linregress(xdata, ydata)
+    y_pred = slope * xdata + intercept
+    y_error = (np.abs(ydata - y_pred) / np.abs(ydata)) * 100
+
+    y_range = np.ptp(ydata)
+    y_error = (np.abs(ydata - y_pred) / y_range) * 100
+    max_error = (np.max(ydata-y_pred) / y_range) * 100
+
+    return {
+        'response': {"slope": slope, "intercept": intercept},
+        'predict': y_pred, 
+        'error': y_error,
+        'max_error': max_error
+        }
+
+def sensitivity(xdata, ydata):
+
+    params = linear_analysis_FS(xdata, ydata)
+    sensitivity = params['response']['slope']
+    return sensitivity
+
+def non_linear_index(xdata, ydata):
+
+    params = linear_analysis_FS(xdata, ydata)
+    non_linear_index = params['max_error']
+    return non_linear_index
+
+
+###############################################################
+#### Define the method to fit the vc simulation data     ######
+###############################################################
+def quadratic(x, a, b, c):
+    return a*x**2 + b*x + c
+
+def quadratic_analysis(xdata, ydata):
+
+    params, _ = curve_fit(quadratic, xdata, ydata)
+    predict = quadratic(xdata, *params)
+    max_force = np.max(predict)
+    max_force_error = 1 - ((predict - max_force)/max_force * 100)
+
+    return {"response": params, 
+             "predict": predict, 
+             "max_force": max_force,
+             "max_force_error": max_force_error}
+
+def max_force(xdata, ydata):
+
+    params = quadratic_analysis(xdata, ydata)
+    max_force = params['max_force']
+    return max_force
+
+def force_variation_index(xdata, ydata):
+
+    params = quadratic_analysis(xdata, ydata)
+    force_variation_index = np.max(params["max_force_error"])
+    return force_variation_index
+
+
+##########################################################
+#### Define the method for optimizaiton    ###############
+##########################################################
+
+def fitness_function(sensitivity, nonlinear_index, max_force, force_variation_index, s_weight=1, nli_weight=1, mf_weight=1, fvi_weight = 1):
+    """
+    calculate the fitness function of the data:
+    """
+    
+    fitness = s_weight * sensitivity + nli_weight * nonlinear_index + mf_weight * max_force+ fvi_weight * force_variation_index
+    return fitness
+
+##########################################################
+#### Define the method for plotting the data    ##########
+##########################################################
 def plot_lvdt_data(xdata, ydata, unit="V", xlabel=None, ylabel=None, title=None, auto_save=False, fig_size=(8, 6)):
     if unit =="mV":
         ydata = ydata * 1000
@@ -197,7 +284,7 @@ def plot_linear_fit_error(xdata, ydata, unit="V", title=None, norm=False, auto_s
     intercept = fit_params["intercept"]
     plt.figure(figsize=fig_size)
     if norm:
-        plt.plot(xdata, abs((ydata - (slope * xdata + intercept))/ydata), marker = 'o', label='Fit Error')
+        plt.plot(xdata, 100*abs((ydata - (slope * xdata + intercept))/ydata), marker = 'o', label='Fit Error')
         plt.ylabel('Normalized Error %')
     else:
         plt.plot(xdata, ydata - (slope * xdata + intercept), marker = 'o', label='Fit Error')

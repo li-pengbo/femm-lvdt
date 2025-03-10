@@ -12,8 +12,8 @@ from models.air import AirModel
 from models.coil import CoilModel
 from models.core import CoreModel
 from models.shell import ShellModel
-from simulation.context import FEMMSession, FEMMError
-from simulation.data_handler import generate_lvdt_data, generate_vc_data
+from core.context import FEMMSession, FEMMError
+from core.data_handler import generate_lvdt_data, generate_vc_data
 
 def setup_logging():
     logging.basicConfig(
@@ -279,7 +279,7 @@ class VoiceCoilSimulator(BaseSimulator):
     def save_state(self):
         femm.mi_zoom(-2,-50,50,50)
         femm.mi_refreshview()
-        sim_dir = self.output_dir + '/' + "vc_files"
+        sim_dir = self.output_dir + '/' + "femm_files"
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         if not os.path.exists(sim_dir):
             os.makedirs(sim_dir)

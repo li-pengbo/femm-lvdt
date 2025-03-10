@@ -4,7 +4,7 @@ sys.path.append("../")
 import femm
 from dataclasses import dataclass, asdict
 from models.base import BaseParams, BaseModel
-from simulation.material import MaterialHandler as mat_handler
+from core.material import MaterialHandler as mat_handler
 @dataclass
 class AirParams(BaseParams):
     boundary_id: int = 10                   # Boundary ID
