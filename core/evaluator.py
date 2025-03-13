@@ -57,33 +57,39 @@ def vc_objective_function(output_dir, output_filename):
     return f3, f4
 
 # LVDT evaluation function
-def lvdt_evaluator(params,lvdt_json_filename, lvdt_iter_filename, lvdt_output_dir, lvdt_output_filename):
-    
-    parameter_modifier(params, lvdt_json_filename, lvdt_iter_filename)
+def lvdt_evaluator(params,input_json_filename, iter_json_filename, output_dir, output_filename):
+
+    parameter_modifier(params, input_json_filename, iter_json_filename)
     try:
-        SimulatorManager(
-            input_jsonname=lvdt_iter_filename, 
-            output_filename=lvdt_output_filename, 
-            output_dir=lvdt_output_dir, 
-            auto_close=True
-            ).run_simulation()
+        simulator = SimulatorManager(
+            input_jsonname=iter_json_filename, 
+            output_filename=output_filename, 
+            output_dir=output_dir, 
+            auto_close=True,
+            density_plot=False
+            )
+        simulator.run_simulation()
     except Exception as e:
-        return 1e6, 1e6
+        print(f"Error: {e}")
+        return -1e6, 1e6
     
-    return lvdt_objective_function(lvdt_output_dir, lvdt_output_filename)
+    return lvdt_objective_function(output_dir, output_filename)
 
 # VC evaluation function
-def vc_evaluator(params, vc_json_filename, vc_iter_filename, vc_output_dir, vc_output_filename):
+def vc_evaluator(params, input_json_filename, iter_json_filename, output_dir, output_filename):
 
-    parameter_modifier(params, vc_json_filename, vc_iter_filename)
+    parameter_modifier(params, input_json_filename, iter_json_filename)
     try:
-        SimulatorManager(
-            input_jsonname=vc_iter_filename, 
-            output_filename=vc_output_filename,
-            output_dir=vc_output_dir, 
-            auto_close=True
-            ).run_simulation()
+        simulator = SimulatorManager(
+            input_jsonname=iter_json_filename, 
+            output_filename=output_filename,
+            output_dir=output_dir, 
+            auto_close=True,
+            density_plot=False
+            )
+        simulator.run_simulation()
     except Exception as e:
-        return 1e6, 1e6
+        return e, e
+        return -1e6, 1e6
     
-    return vc_objective_function(vc_output_dir, vc_output_filename)
+    return vc_objective_function(output_dir, output_filename)

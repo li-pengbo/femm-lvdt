@@ -1,4 +1,5 @@
 import json
+import numpy as np
 
 class JsonHandler:
     def __init__(self, input_json, output_json):
@@ -12,6 +13,7 @@ class JsonHandler:
             self.config = json.load(f)
     
     def save_config(self):
+        self.config = self._convert_numpy_to_python(self.config)
         with open(self.json_filename, "w") as f:
             json.dump(self.config, f, indent=4)
 
@@ -32,6 +34,15 @@ class JsonHandler:
             temp[last_key] = value
         else:
             raise KeyError(f"Key path {' -> '.join(map(str, keys))} does not exist!")
-        
-        # self._save_config()
 
+    def _convert_numpy_to_python(self, obj):
+        if isinstance(obj, dict):
+            return {k: self._convert_numpy_to_python(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [self._convert_numpy_to_python(v) for v in obj]
+        elif isinstance(obj, np.integer):
+            return int(obj) 
+        elif isinstance(obj, np.floating):
+            return float(obj) 
+        else:
+            return obj 

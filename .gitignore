@@ -1,7 +1,15 @@
 .idea/
 .vscode/
+
+archive/
 core/__pycache__/
 models/__pycache__/
-optimization/
-simulation/
+
+optimization/config/
+optimization/data/
+optimization/tests/
+
+simulation/config/
+simulation/data/
+
 simulation.log
