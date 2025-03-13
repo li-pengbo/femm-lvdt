@@ -9,7 +9,6 @@ optimization/config/
 optimization/data/
 optimization/tests/
 
-simulation/config/
 simulation/data/
 
 simulation.log
