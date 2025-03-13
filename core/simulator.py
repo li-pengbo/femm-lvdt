@@ -309,23 +309,23 @@ class VoiceCoilSimulator(BaseSimulator):
             femm.mo_clearblock()
             logging.info(f"{coil_name} - force: {coil_force}")
 
-        # if core_labels:
-        #     for core in core_labels:
-        #         core_name = f"core_{core}"
-        #         femm.mo_groupselectblock(core)
-        #         core_force = femm.mo_blockintegral(19)
-        #         vc_data[core_name]['force'][step] = core_force
-        #         femm.mo_clearblock()
-        #         logging.info(f"{core_name} - force: {core_force}")
+        if core_labels:
+            for core in core_labels:
+                core_name = f"core_{core}"
+                femm.mo_groupselectblock(core)
+                core_force = femm.mo_blockintegral(19)
+                vc_data[core_name]['force'][step] = core_force
+                femm.mo_clearblock()
+                logging.info(f"{core_name} - force: {core_force}")
                 
-        # if shell_labels:
-        #     for shell in shell_labels:
-        #         shell_name = f"shell_{shell}"
-        #         femm.mo_groupselectblock(shell)
-        #         shell_force = femm.mo_blockintegral(19)
-        #         vc_data[shell_name]['force'][step] =  shell_force #0
-        #         femm.mo_clearblock()
-        #         logging.info(f"{shell_name} - force: {shell_force}")
+        if shell_labels:
+            for shell in shell_labels:
+                shell_name = f"shell_{shell}"
+                femm.mo_groupselectblock(shell)
+                shell_force = femm.mo_blockintegral(19)
+                vc_data[shell_name]['force'][step] =  shell_force #0
+                femm.mo_clearblock()
+                logging.info(f"{shell_name} - force: {shell_force}")
 
     def move_elements(self, moving_elements, stepsize):
         for element in moving_elements:
