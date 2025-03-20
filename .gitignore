@@ -5,10 +5,12 @@ archive/
 core/__pycache__/
 models/__pycache__/
 
-optimization/config/
-optimization/data/
-optimization/tests/
+optimization/benchmark/
+optimization/iteration/
+optimization/notebook/simulation.log
+optimization/test/
 
 simulation/data/
+simulation/notebook/simulation.log
 
-simulation.log
+utils/

@@ -60,7 +60,9 @@ class SimulatorManager:
             output_filename="simulation_results.h5",
             output_dir="results", 
             auto_close=False,
-            density_plot=False
+            auto_save=False,
+            density_plot=False,
+
     ):
         self.sim = None
         self.data = None
@@ -70,6 +72,7 @@ class SimulatorManager:
         self.output_dir = output_dir
 
         self.auto_close = auto_close
+        self.auto_save = auto_save
         self.density_plot = density_plot
         
         setup_logging()
@@ -135,6 +138,7 @@ class SimulatorManager:
                     signal_frequency=self.config['simulation']['signal_frequency'],
                     output_dir=self.output_dir,
                     output_filename=self.output_filename,
+                    auto_save=self.auto_save,
                     density_plot=self.density_plot
                 )
             elif self.config['simulation']['type'] == "VoiceCoil":
@@ -142,6 +146,7 @@ class SimulatorManager:
                     signal_frequency=self.config['simulation']['signal_frequency'],
                     output_dir=self.output_dir,
                     output_filename=self.output_filename,
+                    auto_save=self.auto_save,
                     density_plot=self.density_plot
                 )
             else:
@@ -183,11 +188,13 @@ class SimulatorManager:
 
 class LVDTsimulator(BaseSimulator):
 
-    def __init__(self, signal_frequency, output_dir, output_filename, density_plot=False):
+    def __init__(self, signal_frequency, output_dir, output_filename, auto_save = False, density_plot=False):
         super().__init__(signal_frequency)
         self.output_dir = output_dir
         self.output_filename = output_filename
+        self.auto_save = auto_save
         self.density_plot = density_plot
+        self.fem_file = None
 
     def simulate(self, config: Dict):
         coil_names = [coil['circuit_name'] for coil in config['coils']]
@@ -209,9 +216,10 @@ class LVDTsimulator(BaseSimulator):
                     femm.mo_showdensityplot(1, 0, 0.0001, 1.0e-9, "bmag")
                     femm.mo_zoom(-2,-50,50,50)
                     femm.mo_refreshview()
-            else:
-                pass
+
             self.collect_results(lvdt_data, i, coil_names)
+            if not self.auto_save:
+                self.reset_state()
             self.move_elements(moving_elements, config['simulation']['stepsize'])
         return lvdt_data
         
@@ -222,11 +230,16 @@ class LVDTsimulator(BaseSimulator):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S") + f"_{uuid.uuid4().hex[:12]}"
         if not os.path.exists(sim_dir):
             os.makedirs(sim_dir)
-        femm.mi_saveas(os.path.join(sim_dir, f"lvdt_simulation_{timestamp}.fem"))
+        self.fem_file = os.path.join(sim_dir, f"lvdt_simulation_{timestamp}.fem")
+        femm.mi_saveas(self.fem_file)
 
     def load_state(self):
         femm.mi_analyze()
         femm.mi_loadsolution()
+
+    def reset_state(self):
+        os.remove(self.fem_file)
+        os.remove(self.fem_file.replace(".fem", ".ans"))
 
     def collect_results(self, lvdt_data, step, coil_names):
         for coil in coil_names:
@@ -243,12 +256,14 @@ class LVDTsimulator(BaseSimulator):
         femm.mi_clearselected()
 
 class VoiceCoilSimulator(BaseSimulator):
-    def __init__(self, signal_frequency, output_dir, output_filename,density_plot=False):
+    def __init__(self, signal_frequency, output_dir, output_filename,auto_save = False, density_plot=False):
         super().__init__(signal_frequency)
         self.output_dir = output_dir
         self.output_filename = output_filename
+        self.auto_save = auto_save
         self.density_plot = density_plot
-    
+        self.fem_file = None
+
     def simulate(self, config: Dict):
         coil_names = [coil['circuit_name'] for coil in config['coils']]
         coil_labels = [coil['group_id'] for coil in config['coils']]
@@ -281,9 +296,9 @@ class VoiceCoilSimulator(BaseSimulator):
                     femm.mo_showdensityplot(1, 0,  0.0001, 1.0e-9, "bmag")
                     femm.mo_zoom(-2,-50,50,50)
                     femm.mo_refreshview()
-            else:
-                pass
             self.collect_results(vc_data, i, coil_names, coil_labels, core_labels, shell_labels)
+            if not self.auto_save:
+                self.reset_state()
             self.move_elements(moving_elements, config['simulation']['stepsize'])
         return vc_data
     
@@ -294,11 +309,16 @@ class VoiceCoilSimulator(BaseSimulator):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S") + f"_{uuid.uuid4().hex[:12]}"
         if not os.path.exists(sim_dir):
             os.makedirs(sim_dir)
-        femm.mi_saveas(os.path.join(sim_dir, f"vc_simulation_{timestamp}.fem"))
+        self.fem_file = os.path.join(sim_dir, f"vc_simulation_{timestamp}.fem")
+        femm.mi_saveas(self.fem_file)
     
     def load_state(self):
         femm.mi_analyze()
         femm.mi_loadsolution()
+    
+    def reset_state(self):
+        os.remove(self.fem_file)
+        os.remove(self.fem_file.replace(".fem", ".ans"))
 
     def collect_results(self, vc_data, step, coil_names, coil_labels, core_labels, shell_labels):
 

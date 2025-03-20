@@ -2,9 +2,9 @@
     "simulation": {
       "type": "LVDT", 
       "signal_frequency": 10000,
-      "initial_position": -5,
+      "initial_position": -25,
       "stepsize": 1,
-      "steps": 10,
+      "steps": 50,
       "moving_elements": [4,5]
     },
 

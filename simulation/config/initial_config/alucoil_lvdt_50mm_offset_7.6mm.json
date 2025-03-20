@@ -1,10 +1,10 @@
 {
     "simulation": {
-      "type": "VoiceCoil", 
-      "signal_frequency": 0,
-      "initial_position": -5,
+      "type": "LVDT", 
+      "signal_frequency": 10000,
+      "initial_position": -25,
       "stepsize": 1,
-      "steps": 10,
+      "steps": 50,
       "moving_elements": [4,5]
     },
 
@@ -52,7 +52,7 @@
         "is_customized_material": true,
         "circuit_name": "Upper_Coil",
         "circuit_type": 1,
-        "circuit_current": 1,
+        "circuit_current": 0.11,
         "magdir": 0,
         "automesh": 0,
         "meshsize": 0.1
@@ -70,7 +70,7 @@
         "is_customized_material": true,
         "circuit_name": "Lower_Coil",
         "circuit_type": 1,
-        "circuit_current": -1,
+        "circuit_current": -0.11,
         "magdir": 0,
         "automesh": 0,
         "meshsize": 0.1

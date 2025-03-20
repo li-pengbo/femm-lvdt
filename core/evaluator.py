@@ -66,6 +66,7 @@ def lvdt_evaluator(params,input_json_filename, iter_json_filename, output_dir, o
             output_filename=output_filename, 
             output_dir=output_dir, 
             auto_close=True,
+            auto_save=False,
             density_plot=False
             )
         simulator.run_simulation()
@@ -85,6 +86,7 @@ def vc_evaluator(params, input_json_filename, iter_json_filename, output_dir, ou
             output_filename=output_filename,
             output_dir=output_dir, 
             auto_close=True,
+            auto_save=False,
             density_plot=False
             )
         simulator.run_simulation()
