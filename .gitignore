@@ -10,6 +10,7 @@ optimization/iteration/
 optimization/notebook/simulation.log
 optimization/test/
 
+simulation/config/
 simulation/data/
 simulation/notebook/simulation.log
 
