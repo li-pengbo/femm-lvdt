@@ -10,10 +10,11 @@ class FEMMError(Exception):
 
 class FEMMSession:
     """Context manager for FEMM session"""
-    def __init__(self, signal_frequency: float, problem_type: str = 'axi'):
+    def __init__(self, signal_frequency: float, problem_type: str = 'axi', gui: bool = False):
         self.signal_frequency = signal_frequency
         self.problem_type = problem_type
         self._is_open = False
+        self._gui = gui
 
     def __enter__(self):
         self.open()
@@ -27,7 +28,10 @@ class FEMMSession:
         """Open FEMM session"""
         if not self._is_open:
             try:
-                femm.openfemm()
+                if self._gui:
+                    femm.openfemm()
+                else:
+                    femm.openfemm(1) 
                 femm.newdocument(0)
                 femm.mi_probdef(
                     self.signal_frequency,

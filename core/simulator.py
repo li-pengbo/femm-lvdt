@@ -28,14 +28,17 @@ class BaseSimulator:
     def __init__(
         self, 
         signal_frequency: float, 
-        problem_type: str = 'axi'
+        problem_type: str = 'axi',
+        gui: bool = False
     ):
         self.signal_frequency = signal_frequency
         self.problem_type = problem_type
+        self.gui = gui
         
         self.session = FEMMSession(
             signal_frequency=self.signal_frequency, 
-            problem_type=self.problem_type
+            problem_type=self.problem_type,
+            gui=self.gui
         )
 
     def initialize(self):
@@ -62,7 +65,7 @@ class SimulatorManager:
             auto_close=False,
             auto_save=False,
             density_plot=False,
-
+            gui=False
     ):
         self.sim = None
         self.data = None
@@ -74,7 +77,8 @@ class SimulatorManager:
         self.auto_close = auto_close
         self.auto_save = auto_save
         self.density_plot = density_plot
-        
+        self.gui = gui
+
         setup_logging()
         logging.info("=====================================")
         logging.info("Welcome to FEMM SimulatorManager")
@@ -139,7 +143,8 @@ class SimulatorManager:
                     output_dir=self.output_dir,
                     output_filename=self.output_filename,
                     auto_save=self.auto_save,
-                    density_plot=self.density_plot
+                    density_plot=self.density_plot,
+                    gui=self.gui
                 )
             elif self.config['simulation']['type'] == "VoiceCoil":
                 return VoiceCoilSimulator(
@@ -147,7 +152,8 @@ class SimulatorManager:
                     output_dir=self.output_dir,
                     output_filename=self.output_filename,
                     auto_save=self.auto_save,
-                    density_plot=self.density_plot
+                    density_plot=self.density_plot,
+                    gui=self.gui
                 )
             else:
                 raise ValueError("Unsupported simulation type")
@@ -184,12 +190,10 @@ class SimulatorManager:
             logging.error(f"Error while building models: {str(e)}")
             raise
 
-
-
 class LVDTsimulator(BaseSimulator):
 
-    def __init__(self, signal_frequency, output_dir, output_filename, auto_save = False, density_plot=False):
-        super().__init__(signal_frequency)
+    def __init__(self, signal_frequency, output_dir, output_filename, auto_save = False, density_plot=False,gui=False):
+        super().__init__(signal_frequency, problem_type='axi', gui=gui)
         self.output_dir = output_dir
         self.output_filename = output_filename
         self.auto_save = auto_save
@@ -256,8 +260,8 @@ class LVDTsimulator(BaseSimulator):
         femm.mi_clearselected()
 
 class VoiceCoilSimulator(BaseSimulator):
-    def __init__(self, signal_frequency, output_dir, output_filename,auto_save = False, density_plot=False):
-        super().__init__(signal_frequency)
+    def __init__(self, signal_frequency, output_dir, output_filename,auto_save = False, density_plot=False, gui=False):
+        super().__init__(signal_frequency, problem_type='axi', gui=gui)
         self.output_dir = output_dir
         self.output_filename = output_filename
         self.auto_save = auto_save
@@ -332,19 +336,21 @@ class VoiceCoilSimulator(BaseSimulator):
         if core_labels:
             for core in core_labels:
                 core_name = f"core_{core}"
-                femm.mo_groupselectblock(core)
-                core_force = femm.mo_blockintegral(19)
+                # femm.mo_groupselectblock(core)
+                # core_force = femm.mo_blockintegral(19)
+                core_force= 0
                 vc_data[core_name]['force'][step] = core_force
-                femm.mo_clearblock()
+                # femm.mo_clearblock()
                 logging.info(f"{core_name} - force: {core_force}")
                 
         if shell_labels:
             for shell in shell_labels:
                 shell_name = f"shell_{shell}"
-                femm.mo_groupselectblock(shell)
-                shell_force = femm.mo_blockintegral(19)
-                vc_data[shell_name]['force'][step] =  shell_force #0
-                femm.mo_clearblock()
+                # femm.mo_groupselectblock(shell)
+                # shell_force = femm.mo_blockintegral(19)
+                shell_force = 0
+                vc_data[shell_name]['force'][step] =  shell_force
+                # femm.mo_clearblock()
                 logging.info(f"{shell_name} - force: {shell_force}")
 
     def move_elements(self, moving_elements, stepsize):

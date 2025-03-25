@@ -57,7 +57,8 @@ def vc_objective_function(output_dir, output_filename):
     return f3, f4
 
 # LVDT evaluation function
-def lvdt_evaluator(params,input_json_filename, iter_json_filename, output_dir, output_filename):
+def lvdt_evaluator(params,input_json_filename, iter_json_filename, output_dir, output_filename, 
+                   auto_close = True, auto_save = False, density_plot = False, gui = False):
 
     parameter_modifier(params, input_json_filename, iter_json_filename)
     try:
@@ -65,9 +66,10 @@ def lvdt_evaluator(params,input_json_filename, iter_json_filename, output_dir, o
             input_jsonname=iter_json_filename, 
             output_filename=output_filename, 
             output_dir=output_dir, 
-            auto_close=True,
-            auto_save=False,
-            density_plot=False
+            auto_close=auto_close,
+            auto_save=auto_save,
+            density_plot=density_plot,
+            gui = gui
             )
         simulator.run_simulation()
     except Exception as e:
@@ -77,7 +79,8 @@ def lvdt_evaluator(params,input_json_filename, iter_json_filename, output_dir, o
     return lvdt_objective_function(output_dir, output_filename)
 
 # VC evaluation function
-def vc_evaluator(params, input_json_filename, iter_json_filename, output_dir, output_filename):
+def vc_evaluator(params, input_json_filename, iter_json_filename, output_dir, output_filename,
+                 auto_close = True, auto_save = False, density_plot = False, gui = False):
 
     parameter_modifier(params, input_json_filename, iter_json_filename)
     try:
@@ -85,9 +88,10 @@ def vc_evaluator(params, input_json_filename, iter_json_filename, output_dir, ou
             input_jsonname=iter_json_filename, 
             output_filename=output_filename,
             output_dir=output_dir, 
-            auto_close=True,
-            auto_save=False,
-            density_plot=False
+            auto_close=auto_close,
+            auto_save=auto_save,
+            density_plot=density_plot,
+            gui = gui
             )
         simulator.run_simulation()
     except Exception as e:
