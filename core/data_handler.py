@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 ##########################################################
 _LVDT_SIGNAL = ['current', 'voltage','flux']
 
-_VC_SIGNAL = ['force']
+_VC_SIGNAL = ['force', 'resistance']
 
 def generate_lvdt_data(config: Dict[str, float]) -> Dict[str, Dict[str, Any]]:
     data_dict = {}
@@ -134,8 +134,10 @@ def get_vc_data(data_dict):
         if key == 'position':
             data[key] = value
         else:
-            for signal in _VC_SIGNAL:
-                data[key] = {signal: value[signal].real}
+            data[key] = {}
+            signal_key = value.keys()
+            for signal in signal_key:
+                data[key][signal] = value[signal].real
     return data
 ###############################################################
 #### Define the method to fit the lvdt simulation data     ####

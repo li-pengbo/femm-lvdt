@@ -50,11 +50,15 @@ def vc_objective_function(output_dir, output_filename):
     position = vc_data['position']
     lower_Coil_force = vc_data['Lower_OutCoil']['force']
     upper_Coil_force = vc_data['Upper_OutCoil']['force']
+    lower_Coil_resistance = vc_data['Lower_OutCoil']['resistance']
+    upper_Coil_resistance = vc_data['Upper_OutCoil']['resistance']
     tot_force = np.abs(lower_Coil_force + upper_Coil_force)
-
+    tot_resistance = np.abs(lower_Coil_resistance + upper_Coil_resistance)
+    avg_resistance = np.mean(tot_resistance) 
     f3 = data_handler.max_force(position, tot_force)
     f4 = data_handler.force_variation_index(position, tot_force)
-    return f3, f4
+    f5 = avg_resistance
+    return f3, f4, f5
 
 # LVDT evaluation function
 def lvdt_evaluator(params,input_json_filename, iter_json_filename, output_dir, output_filename, 
@@ -73,7 +77,7 @@ def lvdt_evaluator(params,input_json_filename, iter_json_filename, output_dir, o
             )
         simulator.run_simulation()
     except Exception as e:
-        print(f"Error: {e}")
+        # print(f"Error: {e}")
         return -1e6, 1e6
     
     return lvdt_objective_function(output_dir, output_filename)
@@ -95,7 +99,7 @@ def vc_evaluator(params, input_json_filename, iter_json_filename, output_dir, ou
             )
         simulator.run_simulation()
     except Exception as e:
-        return e, e
-        return -1e6, 1e6
+        # print(f"Error: {e}")
+        return -1e6, 1e6, 1e6
     
     return vc_objective_function(output_dir, output_filename)

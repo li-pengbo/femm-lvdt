@@ -16,7 +16,7 @@ from models.core import CoreModel
 from models.shell import ShellModel
 from core.context import FEMMSession, FEMMError
 from core.data_handler import generate_lvdt_data, generate_vc_data
-
+from pprint import pprint
 def setup_logging():
     logging.basicConfig(
         filename="simulation.log", level=logging.INFO,
@@ -283,7 +283,6 @@ class VoiceCoilSimulator(BaseSimulator):
 
         moving_elements = config["simulation"]["moving_elements"]
         vc_data = generate_vc_data(config)
-
         for element in moving_elements:
             femm.mi_selectgroup(element)
         femm.mi_movetranslate(0, config['simulation']['initial_position'])
@@ -330,8 +329,17 @@ class VoiceCoilSimulator(BaseSimulator):
             femm.mo_groupselectblock(coil_label)
             coil_force = femm.mo_blockintegral(19)
             vc_data[coil_name]['force'][step] = coil_force
+
+            curr, volt, _ = femm.mo_getcircuitproperties(coil_name)
+            if curr != 0:
+                resistance = volt / curr
+            else:
+                resistance = 0
+            vc_data[coil_name]['resistance'][step] = resistance
+            
             femm.mo_clearblock()
             logging.info(f"{coil_name} - force: {coil_force}")
+            logging.info(f"{coil_name} - resistance: {resistance}")
 
         if core_labels:
             for core in core_labels:
